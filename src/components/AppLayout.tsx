@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown, Mail, MapPin, Phone, ArrowRight, Play, Zap, Heart, Brain, Wind, Beaker, Factory, Shield, Truck, Wrench, Building, Layers, FlaskConical, Trophy, Target, CheckCircle, XCircle, RotateCcw, Clock, Award, Star, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, X, ChevronDown, Mail, MapPin, Phone, ArrowRight, Play, Zap, Heart, Brain, Wind, Beaker, Factory, Shield, Truck, Wrench, Building, Layers, FlaskConical, Trophy, Target, CheckCircle, XCircle, RotateCcw, Clock, Award, Star, Users, LogIn, LogOut, User, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 // Image URLs
@@ -240,6 +241,7 @@ const factoryStats = [{
   label: 'Neurons in Your Brain',
   icon: Brain
 }];
+
 interface QuizScore {
   id: string;
   player_name: string;
@@ -249,11 +251,34 @@ interface QuizScore {
   weak_departments: string[];
   created_at: string;
 }
+
+interface UserData {
+  id: string;
+  email: string;
+  full_name: string | null;
+  created_at: string;
+  role: string;
+}
+
 const AppLayout: React.FC = () => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  // Auth state
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Quiz state
   const [quizActive, setQuizActive] = useState(false);
@@ -272,6 +297,169 @@ const AppLayout: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<QuizScore[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [scoreSaved, setScoreSaved] = useState(false);
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('humanFactoryUser');
+    if (savedUser) {
+      try {
+        setCurrentUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('humanFactoryUser');
+      }
+    }
+  }, []);
+
+  // Auth functions
+  // Auth functions - use direct Supabase client instead of edge function
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError('');
+    setAuthSuccess('');
+
+    try {
+      const normalizedEmail = authEmail.toLowerCase().trim();
+      
+      if (authMode === 'signup') {
+        // Check if user exists
+        const { data: existingUsers } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', normalizedEmail)
+          .limit(1);
+
+        if (existingUsers && existingUsers.length > 0) {
+          setAuthError('An account with this email already exists');
+          setAuthLoading(false);
+          return;
+        }
+
+        // Create simple hash for password (for demo purposes)
+        const encoder = new TextEncoder();
+        const data = encoder.encode(authPassword + 'salt123');
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const password_hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        // Insert new user
+        const { data: newUser, error: insertError } = await supabase
+          .from('users')
+          .insert({
+            email: normalizedEmail,
+            password_hash,
+            full_name: authName || null,
+            is_active: true,
+            role: 'member'
+          })
+          .select('id, email, full_name, created_at, role')
+          .single();
+
+        if (insertError) {
+          if (insertError.code === '23505') {
+            setAuthError('An account with this email already exists');
+          } else {
+            setAuthError('Failed to create account. Please try again.');
+          }
+          setAuthLoading(false);
+          return;
+        }
+
+        setAuthSuccess('Account created successfully!');
+        setCurrentUser(newUser);
+        localStorage.setItem('humanFactoryUser', JSON.stringify(newUser));
+        
+        setTimeout(() => {
+          setAuthModalOpen(false);
+          resetAuthForm();
+          navigate('/members');
+        }, 1000);
+
+      } else {
+        // Sign in
+        const { data: users, error: findError } = await supabase
+          .from('users')
+          .select('id, email, password_hash, full_name, created_at, role, is_active')
+          .eq('email', normalizedEmail)
+          .limit(1);
+
+        if (findError || !users || users.length === 0) {
+          setAuthError('Invalid email or password');
+          setAuthLoading(false);
+          return;
+        }
+
+        const user = users[0];
+
+        if (!user.is_active) {
+          setAuthError('This account has been deactivated');
+          setAuthLoading(false);
+          return;
+        }
+
+        // Verify password
+        const encoder = new TextEncoder();
+        const data = encoder.encode(authPassword + 'salt123');
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const password_hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        if (user.password_hash !== password_hash) {
+          setAuthError('Invalid email or password');
+          setAuthLoading(false);
+          return;
+        }
+
+        // Update last login
+        await supabase
+          .from('users')
+          .update({ last_login: new Date().toISOString() })
+          .eq('id', user.id);
+
+        const { password_hash: _, ...safeUser } = user;
+        
+        setAuthSuccess('Signed in successfully!');
+        setCurrentUser(safeUser);
+        localStorage.setItem('humanFactoryUser', JSON.stringify(safeUser));
+        
+        setTimeout(() => {
+          setAuthModalOpen(false);
+          resetAuthForm();
+          navigate('/members');
+        }, 1000);
+      }
+    } catch (err: any) {
+      console.error('Auth error:', err);
+      setAuthError('An error occurred. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+
+
+  const handleSignOut = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('humanFactoryUser');
+    setUserMenuOpen(false);
+  };
+
+  const resetAuthForm = () => {
+    setAuthEmail('');
+    setAuthPassword('');
+    setAuthName('');
+    setAuthError('');
+    setAuthSuccess('');
+    setShowPassword(false);
+  };
+
+  const openAuthModal = (mode: 'signin' | 'signup') => {
+    setAuthMode(mode);
+    resetAuthForm();
+    setAuthModalOpen(true);
+  };
+
+
 
   // Fetch leaderboard
   const fetchLeaderboard = async () => {
@@ -441,9 +629,52 @@ const AppLayout: React.FC = () => {
               {['Home', 'Departments', 'Quiz', 'Facts', 'About'].map(item => <button key={item} onClick={() => scrollToSection(item.toLowerCase())} className="text-slate-600 hover:text-orange-500 font-medium transition-colors">
                   {item}
                 </button>)}
-              <button onClick={() => scrollToSection('quiz')} className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all">
-                Take the Quiz
-              </button>
+              
+              {/* Sign In / Sign Up Button or User Menu */}
+              {currentUser ? (
+                <div className="relative">
+                  <button 
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 py-2.5 rounded-full font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="max-w-24 truncate">{currentUser.full_name || currentUser.email.split('@')[0]}</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-slate-100">
+                        <p className="font-medium text-slate-800 truncate">{currentUser.full_name || 'User'}</p>
+                        <p className="text-sm text-slate-500 truncate">{currentUser.email}</p>
+                      </div>
+                      <button 
+                        onClick={() => navigate('/members')}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-left text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <User className="w-4 h-4" />
+                        Members Area
+                      </button>
+                      <button 
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+
+                </div>
+              ) : (
+                <button 
+                  onClick={() => openAuthModal('signin')} 
+                  className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In / Sign Up
+                </button>
+              )}
             </div>
 
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-600">
@@ -457,12 +688,42 @@ const AppLayout: React.FC = () => {
               {['Home', 'Departments', 'Quiz', 'Facts', 'About'].map(item => <button key={item} onClick={() => scrollToSection(item.toLowerCase())} className="block w-full text-left text-slate-600 hover:text-orange-500 font-medium py-2">
                   {item}
                 </button>)}
-              <button onClick={() => scrollToSection('quiz')} className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-full font-semibold">
-                Take the Quiz
-              </button>
+              
+              {currentUser ? (
+                <div className="pt-2 border-t border-slate-100">
+                  <div className="flex items-center gap-3 py-2">
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-800">{currentUser.full_name || 'User'}</p>
+                      <p className="text-sm text-slate-500">{currentUser.email}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={handleSignOut}
+                    className="w-full flex items-center justify-center gap-2 bg-red-500 text-white px-6 py-3 rounded-full font-semibold mt-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openAuthModal('signin');
+                  }} 
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-full font-semibold"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In / Sign Up
+                </button>
+              )}
             </div>
           </div>}
       </nav>
+
 
       {/* Hero Section */}
       <section id="home" className="relative min-h-screen flex items-center pt-20">
@@ -887,7 +1148,9 @@ const AppLayout: React.FC = () => {
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter your email" className="flex-1 px-6 py-4 rounded-full text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-white/30" required />
               <button type="submit" className="bg-slate-900 text-white px-8 py-4 rounded-full font-semibold hover:bg-slate-800 transition-colors">Sign Up</button>
+              <input type="hidden" name="list" value="12345678" />
             </form>
+
             {subscribed && <div className="mt-4 text-white font-medium animate-pulse">
                 Thanks for subscribing! Check your inbox soon.
               </div>}
@@ -1014,6 +1277,165 @@ Green Bay, WI 54303</li>
             </div>
           </div>
         </div>}
+
+      {/* Auth Modal */}
+      {authModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAuthModalOpen(false)} />
+          <div className="relative bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="relative bg-gradient-to-r from-orange-500 to-red-600 p-6 text-center">
+              <button 
+                onClick={() => setAuthModalOpen(false)} 
+                className="absolute top-4 right-4 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                {authMode === 'signin' ? <LogIn className="w-8 h-8 text-white" /> : <User className="w-8 h-8 text-white" />}
+              </div>
+              <h3 className="text-2xl font-bold text-white">
+                {authMode === 'signin' ? 'Welcome Back!' : 'Create Account'}
+              </h3>
+              <p className="text-white/80 mt-1">
+                {authMode === 'signin' ? 'Sign in to continue your journey' : 'Join The Human Factory today'}
+              </p>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              {/* Auth Mode Toggle */}
+              <div className="flex bg-slate-100 rounded-xl p-1 mb-6">
+                <button
+                  onClick={() => setAuthMode('signin')}
+                  className={`flex-1 py-2.5 rounded-lg font-medium transition-all ${
+                    authMode === 'signin' 
+                      ? 'bg-white text-slate-800 shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => setAuthMode('signup')}
+                  className={`flex-1 py-2.5 rounded-lg font-medium transition-all ${
+                    authMode === 'signup' 
+                      ? 'bg-white text-slate-800 shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+
+              {/* Error Message */}
+              {authError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-600">
+                  <XCircle className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm">{authError}</span>
+                </div>
+              )}
+
+              {/* Success Message */}
+              {authSuccess && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2 text-green-600">
+                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm">{authSuccess}</span>
+                </div>
+              )}
+
+              {/* Auth Form */}
+              <form onSubmit={handleAuth} className="space-y-4">
+                {authMode === 'signup' && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
+                    <input
+                      type="text"
+                      value={authName}
+                      onChange={(e) => setAuthName(e.target.value)}
+                      placeholder="Enter your full name"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
+                  <input
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      required
+                      minLength={6}
+                      className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  {authMode === 'signup' && (
+                    <p className="text-xs text-slate-500 mt-1">Password must be at least 6 characters</p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {authLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {authMode === 'signin' ? <LogIn className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                      {authMode === 'signin' ? 'Sign In' : 'Create Account'}
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <p className="text-center text-sm text-slate-500 mt-6">
+                {authMode === 'signin' ? (
+                  <>
+                    Don't have an account?{' '}
+                    <button onClick={() => setAuthMode('signup')} className="text-orange-500 font-medium hover:underline">
+                      Sign up
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Already have an account?{' '}
+                    <button onClick={() => setAuthMode('signin')} className="text-orange-500 font-medium hover:underline">
+                      Sign in
+                    </button>
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>;
 };
 export default AppLayout;
