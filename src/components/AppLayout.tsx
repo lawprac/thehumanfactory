@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, Mail, MapPin, Phone, ArrowRight, Play, Zap, Heart, Brain, Wind, Beaker, Factory, Shield, Truck, Wrench, Building, Layers, FlaskConical, Trophy, Target, CheckCircle, XCircle, RotateCcw, Clock, Award, Star, Users, LogIn, LogOut, User, Eye, EyeOff } from 'lucide-react';
+import { Menu, X, ChevronDown, Mail, MapPin, Phone, ArrowRight, Play, Zap, Heart, Brain, Wind, Beaker, Factory, Shield, Truck, Wrench, Building, Layers, FlaskConical, Trophy, Target, CheckCircle, XCircle, RotateCcw, Clock, Award, Star, Users, LogIn, LogOut, User, Eye, EyeOff, Fingerprint, Dna, Microscope, Sparkles, BookOpen, Lightbulb, Cpu } from 'lucide-react';
+
 import { supabase } from '@/lib/supabase';
 
 // Image URLs
@@ -626,7 +627,8 @@ const AppLayout: React.FC = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-8">
-              {['Home', 'Departments', 'Quiz', 'Facts', 'About'].map(item => <button key={item} onClick={() => scrollToSection(item.toLowerCase())} className="text-slate-600 hover:text-orange-500 font-medium transition-colors">
+              {['Home', 'Departments', 'Quiz', 'Facts', 'Design', 'About'].map(item => <button key={item} onClick={() => scrollToSection(item.toLowerCase())} className="text-slate-600 hover:text-orange-500 font-medium transition-colors">
+
                   {item}
                 </button>)}
               
@@ -685,7 +687,8 @@ const AppLayout: React.FC = () => {
 
         {mobileMenuOpen && <div className="md:hidden bg-white border-t">
             <div className="px-4 py-4 space-y-3">
-              {['Home', 'Departments', 'Quiz', 'Facts', 'About'].map(item => <button key={item} onClick={() => scrollToSection(item.toLowerCase())} className="block w-full text-left text-slate-600 hover:text-orange-500 font-medium py-2">
+              {['Home', 'Departments', 'Quiz', 'Facts', 'Design', 'About'].map(item => <button key={item} onClick={() => scrollToSection(item.toLowerCase())} className="block w-full text-left text-slate-600 hover:text-orange-500 font-medium py-2">
+
                   {item}
                 </button>)}
               
@@ -1101,6 +1104,326 @@ const AppLayout: React.FC = () => {
         </div>
       </section>
 
+      {/* Intelligent Design Section */}
+      <section id="design" className="relative overflow-hidden">
+        {/* Hero Banner */}
+        <div className="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 py-20 md:py-28">
+          <div className="absolute inset-0 opacity-10" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }} />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
+          
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-flex items-center gap-2 bg-orange-500/20 text-orange-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Fingerprint className="w-4 h-4" />
+              The Evidence of Design
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
+              Intelligent Design
+            </h2>
+            <p className="text-xl md:text-2xl text-slate-300 font-light leading-relaxed max-w-3xl mx-auto">
+              No Factory This Sophisticated Was Ever Built By Accident
+            </p>
+          </div>
+        </div>
+
+        {/* Introduction */}
+        <div className="bg-slate-50 py-16 md:py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-slate-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
+                  <Factory className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-800">Consider the Evidence</h3>
+              </div>
+              <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                Think about the most advanced manufacturing facility you've ever seen. The robotics. The precision machinery. The quality control systems. The computerized logistics.
+              </p>
+              <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                Now realize this: <span className="font-semibold text-orange-600">Your body makes all of that look like child's play.</span>
+              </p>
+              <p className="text-lg text-slate-600 leading-relaxed mb-8 italic">
+                And here's what the so-called "experts" don't want you thinking about too hard...
+              </p>
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100">
+                <p className="text-lg text-slate-800 font-medium leading-relaxed">
+                  Every factory has a designer. Every sophisticated system has an engineer. Every instruction manual has an author.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* DNA Evidence */}
+        <div className="bg-white py-16 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-4">
+                  <Dna className="w-4 h-4" />
+                  Written in Every Cell
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
+                  The Evidence Is Written Into Every Cell
+                </h3>
+                <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                  Your DNA contains approximately 3 billion base pairs of information. If you printed it out, it would fill 1,000 books of 1,000 pages each. That's not random chaos -- that's an instruction manual so detailed it makes the blueprints for the International Space Station look like a child's crayon drawing.
+                </p>
+                <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                  Your heart beats 100,000 times per day without you thinking about it once. It pumps 2,000 gallons of blood through 60,000 miles of blood vessels. The engineering precision required to maintain pressure, timing, and flow rate simultaneously would make any automotive engineer weep with envy.
+                </p>
+                <p className="text-xl font-bold text-orange-600">
+                  This didn't happen by accident.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 text-center border border-indigo-100">
+                  <div className="text-3xl md:text-4xl font-bold text-indigo-600 mb-1">3B</div>
+                  <p className="text-sm text-slate-600">DNA Base Pairs</p>
+                </div>
+                <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-6 text-center border border-red-100">
+                  <div className="text-3xl md:text-4xl font-bold text-red-600 mb-1">100K</div>
+                  <p className="text-sm text-slate-600">Heartbeats Daily</p>
+                </div>
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 text-center border border-orange-100">
+                  <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1">2,000</div>
+                  <p className="text-sm text-slate-600">Gallons Pumped Daily</p>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 text-center border border-purple-100">
+                  <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-1">60K</div>
+                  <p className="text-sm text-slate-600">Miles of Vessels</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Eyes Section */}
+        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 py-16 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="order-2 lg:order-1">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/10 backdrop-blur rounded-2xl p-6 text-center border border-white/20">
+                    <Eye className="w-8 h-8 text-orange-400 mx-auto mb-3" />
+                    <div className="text-2xl font-bold text-white mb-1">10M+</div>
+                    <p className="text-sm text-slate-300">Colors Detected</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur rounded-2xl p-6 text-center border border-white/20">
+                    <Zap className="w-8 h-8 text-orange-400 mx-auto mb-3" />
+                    <div className="text-2xl font-bold text-white mb-1">576</div>
+                    <p className="text-sm text-slate-300">Megapixels</p>
+                  </div>
+                  <div className="col-span-2 bg-white/10 backdrop-blur rounded-2xl p-6 text-center border border-white/20">
+                    <Sparkles className="w-8 h-8 text-orange-400 mx-auto mb-3" />
+                    <p className="text-white font-medium">Built-in image stabilization, autofocus, and instant light adjustment</p>
+                  </div>
+                </div>
+              </div>
+              <div className="order-1 lg:order-2">
+                <div className="inline-flex items-center gap-2 text-orange-400 font-semibold text-sm uppercase tracking-wider mb-4">
+                  <Eye className="w-4 h-4" />
+                  Superior Engineering
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
+                  Your Eyes: Better Than Any Camera Ever Built
+                </h3>
+                <p className="text-lg text-slate-300 leading-relaxed mb-6">
+                  The human eye can distinguish between 10 million different colors. It automatically adjusts to light conditions in milliseconds. It can detect a single photon of light in complete darkness. It has built-in image stabilization, autofocus, and can process the equivalent of 576 megapixels of information.
+                </p>
+                <p className="text-lg text-slate-300 leading-relaxed mb-6">
+                  Canon and Nikon employ thousands of engineers working for decades to approximate what your eyes do effortlessly from the moment you're born.
+                </p>
+                <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/20">
+                  <p className="text-white italic leading-relaxed">
+                    Charles Darwin himself admitted: "To suppose that the eye...could have been formed by natural selection, seems, I freely confess, absurd in the highest degree."
+                  </p>
+                  <p className="text-orange-400 font-semibold mt-3">He was right to be troubled.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Immune System */}
+        <div className="bg-white py-16 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 text-emerald-600 font-semibold text-sm uppercase tracking-wider mb-4">
+                  <Shield className="w-4 h-4" />
+                  Defense Network
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
+                  The Immune System: A Defense Network That Would Make the Pentagon Jealous
+                </h3>
+                <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                  Right now -- as you read this -- your body is simultaneously fighting off thousands of potential invaders. Your immune system can recognize and remember millions of different enemies. It has special forces (T-cells), intelligence gathering units (antibodies), and can manufacture custom weapons for threats it's never encountered before.
+                </p>
+                <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                  It does all this automatically. With no conscious direction from you. Using a biological software program that makes our most advanced AI look primitive.
+                </p>
+                <p className="text-lg font-semibold text-slate-800">
+                  The U.S. military has spent trillions attempting to create defense systems with a fraction of this capability.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { icon: Shield, label: 'Special Forces', desc: 'T-cells that hunt and destroy invaders', color: 'from-emerald-500 to-teal-600' },
+                  { icon: Microscope, label: 'Intelligence Units', desc: 'Antibodies that identify every threat', color: 'from-blue-500 to-indigo-600' },
+                  { icon: Cpu, label: 'Custom Weapons', desc: 'Manufactures new defenses for unknown threats', color: 'from-purple-500 to-violet-600' },
+                  { icon: Lightbulb, label: 'Perfect Memory', desc: 'Remembers millions of different enemies', color: 'from-orange-500 to-red-600' }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors border border-slate-100">
+                    <div className={`w-14 h-14 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                      <item.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800">{item.label}</h4>
+                      <p className="text-slate-600 text-sm">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Brain Section */}
+        <div className="bg-gradient-to-br from-purple-950 via-indigo-950 to-slate-900 py-16 md:py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-flex items-center gap-2 text-purple-300 font-semibold text-sm uppercase tracking-wider mb-4">
+              <Brain className="w-4 h-4" />
+              The Ultimate Supercomputer
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-8">
+              The Brain: 86 Billion Processors Working in Perfect Harmony
+            </h3>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/20">
+                <div className="text-3xl font-bold text-orange-400 mb-1">86B</div>
+                <p className="text-sm text-purple-200">Neurons</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/20">
+                <div className="text-3xl font-bold text-orange-400 mb-1">860T</div>
+                <p className="text-sm text-purple-200">Neural Pathways</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/20">
+                <div className="text-3xl font-bold text-orange-400 mb-1">268</div>
+                <p className="text-sm text-purple-200">MPH Processing</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/20">
+                <div className="text-3xl font-bold text-orange-400 mb-1">20W</div>
+                <p className="text-sm text-purple-200">Power Usage</p>
+              </div>
+            </div>
+
+            <p className="text-lg text-slate-300 leading-relaxed mb-6 text-left md:text-center">
+              Your brain contains 86 billion neurons. Each neuron can make up to 10,000 connections with other neurons. That's 860 trillion possible neural pathways. It processes information at speeds up to 268 miles per hour. It creates, stores, and retrieves memories using a system we still don't fully understand.
+            </p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6 text-left md:text-center">
+              And it only uses 20 watts of power -- less than your refrigerator light bulb.
+            </p>
+            <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/20 max-w-2xl mx-auto">
+              <p className="text-white leading-relaxed">
+                Meanwhile, the world's most advanced supercomputers require entire buildings of cooling systems and enough electricity to power a small city just to perform tasks your brain does while you're sleeping.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* The Uncomfortable Truth */}
+        <div className="bg-slate-50 py-16 md:py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 text-red-600 font-semibold text-sm uppercase tracking-wider mb-4">
+                <BookOpen className="w-4 h-4" />
+                The Uncomfortable Truth
+              </div>
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
+                The Uncomfortable Truth They Don't Teach in Biology Class
+              </h3>
+            </div>
+
+            <div className="space-y-6 mb-12">
+              <p className="text-lg text-slate-700 leading-relaxed">
+                Your lungs automatically adjust their breathing rate based on blood chemistry. Your kidneys filter your entire blood supply 40 times per day, removing waste while preserving essential nutrients. Your liver performs over 500 different chemical functions. Your stomach produces precisely calibrated acid that can dissolve metal, yet doesn't dissolve itself.
+              </p>
+              <p className="text-lg text-slate-700 leading-relaxed">
+                Every system. Every organ. Every cell. All working together with the kind of coordinated precision that would require millions of pages of programming code if we tried to replicate it artificially.
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-3xl p-8 md:p-10 text-center shadow-xl shadow-orange-500/20">
+              <h4 className="text-2xl md:text-3xl font-bold text-white mb-6">
+                This level of complexity doesn't create itself.
+              </h4>
+              <div className="space-y-3 max-w-xl mx-auto">
+                <p className="text-white/90 text-lg">You don't get instruction manuals without authors.</p>
+                <p className="text-white/90 text-lg">You don't get factories without engineers.</p>
+                <p className="text-white/90 text-lg">You don't get sophisticated machinery without designers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Why This Matters */}
+        <div className="bg-white py-16 md:py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 text-orange-600 font-semibold text-sm uppercase tracking-wider mb-4">
+                <Lightbulb className="w-4 h-4" />
+                The Key Insight
+              </div>
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
+                Why This Matters for YOUR Health
+              </h3>
+            </div>
+
+            <div className="bg-gradient-to-br from-slate-50 to-orange-50 rounded-3xl p-8 md:p-10 border border-orange-100">
+              <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                Here's the point most people miss: <span className="font-bold text-slate-900">If your body was intelligently designed, then it was designed to WORK.</span>
+              </p>
+              <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                The same intelligence that engineered your immune system, designed your digestive process, and programmed your cellular repair mechanisms also built in everything you need for optimal health.
+              </p>
+              
+              <div className="space-y-4 my-8">
+                {[
+                  'When you understand the design, you understand the owner\'s manual.',
+                  'When you understand the owner\'s manual, you stop making the mistakes that sabotage your body\'s built-in healing systems.'
+                ].map((text, index) => (
+                  <div key={index} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm">
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="text-slate-800 font-medium text-lg">{text}</p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-lg text-slate-700 leading-relaxed">
+                That's why Dr. Rick created <span className="font-bold text-orange-600">The Human Factory</span> -- to help you understand the incredible design of your body and learn how to work <em>with</em> it, not against it, for optimal health and vitality.
+              </p>
+            </div>
+
+            <div className="text-center mt-10">
+              <button 
+                onClick={() => scrollToSection('contact')} 
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1"
+              >
+                Learn More from Dr. Rick
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
       {/* About Section */}
       <section id="about" className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1188,7 +1511,8 @@ const AppLayout: React.FC = () => {
             <div>
               <h4 className="font-bold text-lg mb-4">Quick Links</h4>
               <ul className="space-y-3">
-                {['Home', 'Departments', 'Quiz', 'Facts', 'About'].map(link => <li key={link}>
+                {['Home', 'Departments', 'Quiz', 'Facts', 'Design', 'About'].map(link => <li key={link}>
+
                     <button onClick={() => scrollToSection(link.toLowerCase())} className="text-slate-400 hover:text-orange-500 transition-colors">
                       {link}
                     </button>
